@@ -26,7 +26,7 @@ def format_date(date_string):
 
     date = datetime.strptime(
         date_string,
-        "%Y-%m-%d"
+        "%d.%m.%Y"
     )
 
     day = date.day
@@ -40,7 +40,7 @@ def format_date_title(date_string):
 
     date = datetime.strptime(
         date_string,
-        "%Y-%m-%d"
+        "%d.%m.%Y"
     ).date()
 
     now = datetime.now(timezone).date()

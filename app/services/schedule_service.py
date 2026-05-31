@@ -14,8 +14,7 @@ def get_today_records():
     records = get_all_records()
 
     now = datetime.now(timezone)
-
-    current_date = now.strftime("%y-%m-%d")
+    current_date = now.strftime("%d.%m.%Y")
 
     today_records = []
 

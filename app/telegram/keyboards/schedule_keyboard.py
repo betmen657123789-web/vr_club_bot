@@ -48,14 +48,14 @@ def get_schedule_keyboard():
             [
                 InlineKeyboardButton(
                     text="📅 Сегодня",
-                    callback_data=f"schedule_{today}"
+                    callback_data=f"schedule_{today.strftime('%d.%m.%Y')}"
                 )
             ],
 
             [
                 InlineKeyboardButton(
                     text="📅 Завтра",
-                    callback_data=f"schedule_{tomorrow}"
+                    callback_data=f"schedule_{tomorrow.strftime('%d.%m.%Y')}"
                 )
             ],
 
@@ -91,7 +91,7 @@ def get_calendar_keyboard():
         dates.append(
             InlineKeyboardButton(
                 text=f"📅 {beautiful_date}",
-                callback_data=f"schedule_{date}"
+                callback_data=f"schedule_{date.strftime('%d.%m.%Y')}"
             )
         )
 
