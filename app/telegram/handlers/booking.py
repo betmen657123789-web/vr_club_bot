@@ -7,6 +7,9 @@ from aiogram.types import (
 from app.content.contacts import (
     BOOKING_TEXT
 )
+from app.telegram.utils.banner import (
+    send_banner
+)
 
 from app.telegram.keyboards.schedule_keyboard import (
     get_schedule_keyboard
@@ -21,9 +24,9 @@ router = Router()
 )
 async def booking_handler(message: Message):
 
-    await message.answer(
-        "📅 Выберите дату:",
-        reply_markup=get_schedule_keyboard()
+    await send_banner(
+        message,"📅 Выберите дату:",
+        get_schedule_keyboard()
     )
 
 
@@ -37,9 +40,8 @@ async def booking_callback(
 
     await callback.answer()
 
-    if callback.message:
-
-        await callback.message.edit_text(
-            "📅 Выберите дату:",
-            reply_markup=get_schedule_keyboard()
-        )
+    await send_banner(
+        callback.message,
+        "📅 Выберите дату:",
+        get_schedule_keyboard()
+    )

@@ -1,12 +1,7 @@
-from aiogram.types import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton
-)
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 
-def get_price_card_keyboard(
-    games_type
-):
+def get_price_card_keyboard(games_type: str):
 
     return InlineKeyboardMarkup(
         inline_keyboard=[

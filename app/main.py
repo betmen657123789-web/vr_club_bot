@@ -6,6 +6,13 @@ from app.telegram.bot import (
     dp
 )
 dp.include_router(prices.router)
+from app.telegram.handlers.about import (
+    router as about_router
+)
+
+dp.include_router(
+    about_router
+)
 
 
 
