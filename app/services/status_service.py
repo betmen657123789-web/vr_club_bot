@@ -1,5 +1,6 @@
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery
+from app.utils.formatter import now
 
 from app.telegram.utils.banner import send_banner
 from app.services.schedule_service import (
@@ -16,8 +17,7 @@ from datetime import datetime
 
 
 def is_after_working_hours():
-    now = datetime.now()
-    return now.hour >= 21
+    return now().hour >= 21
 
 
 # =========================

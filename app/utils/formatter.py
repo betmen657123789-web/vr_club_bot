@@ -1,9 +1,8 @@
-from datetime import datetime
-from datetime import timedelta
-import pytz
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
 
-
-timezone = pytz.timezone("Asia/Irkutsk")
+# 🌍 один источник правды для таймзоны
+TIMEZONE = ZoneInfo("Asia/Irkutsk")
 
 
 MONTHS = {
@@ -22,33 +21,23 @@ MONTHS = {
 }
 
 
-def format_date(date_string):
-
-    date = datetime.strptime(
-        date_string,
-        "%d.%m.%Y"
-    )
-
-    day = date.day
-
-    month = MONTHS[date.month]
-
-    return f"{day} {month}"
+def now():
+    return datetime.now(TIMEZONE)
 
 
-def format_date_title(date_string):
+def format_date(date_string: str) -> str:
+    date = datetime.strptime(date_string, "%d.%m.%Y")
+    return f"{date.day} {MONTHS[date.month]}"
 
-    date = datetime.strptime(
-        date_string,
-        "%d.%m.%Y"
-    ).date()
 
-    now = datetime.now(timezone).date()
+def format_date_title(date_string: str) -> str:
+    date = datetime.strptime(date_string, "%d.%m.%Y").date()
+    today = now().date()
 
-    if date == now:
+    if date == today:
         return f"Сегодня — {format_date(date_string)}"
 
-    if date == now + timedelta(days=1):
+    if date == today + timedelta(days=1):
         return f"Завтра — {format_date(date_string)}"
 
     return format_date(date_string)

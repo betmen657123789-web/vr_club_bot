@@ -11,88 +11,107 @@ from app.telegram.utils.banner import send_banner
 router = Router()
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path.cwd()
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+PHOTO_DIR = PROJECT_ROOT / "photos"
 
-# кеш file_id (в памяти)
+# =========================
+# CACHE
+# =========================
 PHOTO_CACHE: list[str] = []
+PHOTO_MESSAGE_IDS: list[int] = []
 
 
-@router.callback_query(lambda callback: callback.data == "club_photos")
+@router.callback_query(lambda c: c.data == "club_photos")
 async def club_photos(callback: CallbackQuery):
-    logger.info("Callback: club_photos triggered")
-
     await callback.answer()
 
+    chat_id = callback.message.chat.id
+
     # =========================
-    # 1. КЕШ
+    # 0. УДАЛЯЕМ СТАРЫЙ АЛЬБОМ
+    # =========================
+    for msg_id in PHOTO_MESSAGE_IDS:
+        try:
+            await callback.message.bot.delete_message(chat_id, msg_id)
+        except Exception:
+            pass
+
+    PHOTO_MESSAGE_IDS.clear()
+
+    # =========================
+    # 1. MEDIA (cache / disk)
     # =========================
     if PHOTO_CACHE:
-        media = [
-            InputMediaPhoto(media=file_id)
-            for file_id in PHOTO_CACHE
+        media = [InputMediaPhoto(media=fid) for fid in PHOTO_CACHE]
+    else:
+        photo_paths = [
+            PHOTO_DIR / "photo_2026-05-31_18-10-52.jpg",
+            PHOTO_DIR / "photo_2026-06-05_22-48-51.jpg",
+            PHOTO_DIR / "photo_2026-06-05_22-45-11.jpg",
+            PHOTO_DIR / "photo_2026-06-05_22-45-12.jpg",
+            PHOTO_DIR / "photo_2026-06-05_22-48-21.jpg",
         ]
 
-        await callback.message.answer_media_group(media)
-
-        await callback.message.answer(
-            "⬇️ Вернуться в меню клуба:",
-            reply_markup=get_about_back_keyboard()
-        )
-
-        logger.info("Sent photos from cache: %s", len(PHOTO_CACHE))
-        return
-
-    # =========================
-    # 2. С ДИСКА
-    # =========================
-    photo_paths = [
-        BASE_DIR / "photos" / "photo_2026-05-31_18-10-52.jpg",
-        BASE_DIR / "photos" / "photo_2026-06-05_22-48-51.jpg",
-        BASE_DIR / "photos" / "photo_2026-06-05_22-45-11.jpg",
-        BASE_DIR / "photos" / "photo_2026-06-05_22-45-12.jpg",
-        BASE_DIR / "photos" / "photo_2026-06-05_22-48-21.jpg",
-    ]
-
-    media = []
-
-    for path in photo_paths:
-        if not path.exists():
-            logger.error("Missing file: %s", path)
-            continue
-
-        media.append(InputMediaPhoto(media=FSInputFile(str(path))))
+        media = [
+            InputMediaPhoto(media=FSInputFile(str(p)))
+            for p in photo_paths
+            if p.exists()
+        ]
 
     if not media:
         await callback.message.answer("❌ Фото не найдены")
         return
 
     # =========================
-    # 3. ОТПРАВКА
+    # 2. SEND ALBUM
     # =========================
     messages = await callback.message.bot.send_media_group(
-        chat_id=callback.message.chat.id,
+        chat_id=chat_id,
         media=media
     )
 
     # =========================
-    # 4. КЕШ file_id
+    # 3. CACHE UPDATE (важно: порядок сохраняем)
     # =========================
-    for msg in messages:
-        if msg.photo:
-            file_id = msg.photo[-1].file_id
+    if not PHOTO_CACHE:
+        for msg in messages:
+            if msg.photo:
+                PHOTO_CACHE.append(msg.photo[-1].file_id)
 
-            if file_id not in PHOTO_CACHE:
-                PHOTO_CACHE.append(file_id)
+    PHOTO_MESSAGE_IDS.extend([m.message_id for m in messages])
 
     # =========================
-    # 5. КНОПКА НАЗАД (ВОТ ОНА)
+    # 4. BACK BUTTON
     # =========================
     await callback.message.answer(
-        "⬇️ Вернуться в меню клуба:",
+        "Вернуться в меню клуба:",
         reply_markup=get_about_back_keyboard()
     )
 
-    logger.info("Cache updated: %s items", len(PHOTO_CACHE))
+
+# =========================
+# 🔙 BACK (как в расписании)
+# =========================
+@router.callback_query(lambda c: c.data == "back_to_menu")
+async def back_to_menu(callback: CallbackQuery):
+    await callback.answer()
+
+    chat_id = callback.message.chat.id
+
+    # удаляем альбом
+    for msg_id in PHOTO_MESSAGE_IDS:
+        try:
+            await callback.message.bot.delete_message(chat_id, msg_id)
+        except Exception:
+            pass
+
+    PHOTO_MESSAGE_IDS.clear()
+
+    await callback.message.answer(
+        "🏠 VR CLUB",
+        reply_markup=get_about_keyboard()
+    )
+
 @router.callback_query(lambda callback: callback.data == "club_map")
 async def club_map(callback: CallbackQuery):
     logger.info("Callback: club_map triggered")
