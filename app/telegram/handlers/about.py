@@ -12,7 +12,7 @@ from pathlib import Path
 router = Router()
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path.cwd()
+BASE_DIR = Path(__file__).resolve().parents[2]
 @router.callback_query(lambda callback: callback.data == "club_photos")
 async def club_photos(callback: CallbackQuery):
     logger.info("Callback: club_photos triggered")
