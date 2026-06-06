@@ -3,16 +3,21 @@ from aiogram.types import (
     FSInputFile,
     Message,
 )
+import os
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# BASE_DIR = /app/app
 
 async def send_banner(
     message: Message,
     text: str,
     keyboard=None,
-    photo_path: str = "photos/banner.png"
+    photo_path: str = None
 ):
+    if photo_path is None:
+        photo_path = os.path.join(BASE_DIR, "photos", "banner.png")
 
     photo = FSInputFile(photo_path)
-
     media = InputMediaPhoto(
         media=photo,
         caption=text
