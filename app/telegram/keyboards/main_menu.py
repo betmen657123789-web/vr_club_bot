@@ -28,7 +28,7 @@ KeyboardButton(
 
         [
             KeyboardButton(
-                text="💰 Цены"
+                text="🎮 Тарифы и услуги"
             ),
 
             KeyboardButton(

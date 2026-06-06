@@ -18,10 +18,17 @@ async def club_photos(callback: CallbackQuery):
 
     await callback.answer()
 
-    photo_path = "photos/photo_2026-05-31_18-10-52.jpg"
+    photo_paths = [
+        "photos/photo_2026-05-31_18-10-52.jpg",
+        "photos/photo_2026-06-05_22-48-51.jpg",
+        "photos/photo_2026-06-05_22-45-11.jpg",
+        "photos/photo_2026-06-05_22-45-12.jpg",
+        "photos/photo_2026-06-05_22-48-21.jpg",
+    ]
 
     media = [
-        InputMediaPhoto(media=FSInputFile(photo_path)) for _ in range(5)
+        InputMediaPhoto(media=FSInputFile(path))
+        for path in photo_paths
     ]
 
     logger.info("Sending media group with %s photos", len(media))
@@ -64,11 +71,15 @@ async def about_menu(message: Message):
         "📍 Адрес:\n"
         "Култукский тракт, 14а, Шелехов\n\n"
         "🕐 Работаем ежедневно:\n"
-        "13:00–20:00\n\n"
+        "12:00–21:00\n\n"
         "🚗 Парковка:\n"
         "есть бесплатная парковка\n\n"
         "👥 Вместимость:\n"
-        "до 10 человек\n\n"
+        "Оптимально — до 10 человек\n"
+        "Комфортная рассадка:\n"
+        "• 3 PS-зоны (1 зона = 3 игрока, комфортно — 2)\n"
+        "• 4 VR-шлема (1 игрок = 1 шлем)\n"
+        "Можно разместить больше 10 гостей — в этом случае добавляется доплата за каждого дополнительного человека.\n\n"
         "🍕 Можно со своей едой и напитками\n\n"
         "🎂 Проводим дни рождения и мероприятия"
     )

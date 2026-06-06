@@ -15,6 +15,6 @@ router = Router()
 async def start_handler(message: Message):
     await send_banner(
         message=message,
-        text="🎮 Добро пожаловать в VR клуб Nexus Prime",
+        text="🎮 Добро пожаловать в VR клуб Nexus",
         keyboard=main_menu
     )

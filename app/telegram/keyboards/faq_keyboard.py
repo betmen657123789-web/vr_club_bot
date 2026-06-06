@@ -14,12 +14,12 @@ def get_faq_keyboard():
 
     keyboard = []
 
-    for question in questions:
+    for i, question in enumerate(questions):
 
         keyboard.append([
             InlineKeyboardButton(
                 text=f"❓ {question}",
-                callback_data=f"faq_{question}"
+                callback_data=f"faq_{i}"
             )
         ])
 

@@ -1,8 +1,11 @@
 from pathlib import Path
 
-import gspread
 import time
+import os
+import gspread
 
+from dotenv import load_dotenv
+from google.oauth2.service_account import Credentials
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 records_cache = []
@@ -19,29 +22,41 @@ prices_cache = []
 
 prices_last_update = 0
 
-CREDENTIALS_PATH = (
-    BASE_DIR
-    / "credentials"
-    / "vr-club-bot-fb77cb3dd2a8.json"
-)
+
 
 
 # Подключение ОДИН раз
 
-gc = gspread.service_account(
-    filename=str(CREDENTIALS_PATH)
+
+load_dotenv()
+
+service_account_info = {
+    "type": "service_account",
+    "project_id": os.getenv("GOOGLE_PROJECT_ID"),
+    "client_email": os.getenv("GOOGLE_CLIENT_EMAIL"),
+    "private_key": os.getenv("GOOGLE_PRIVATE_KEY").replace("\\n", "\n"),
+    "token_uri": "https://oauth2.googleapis.com/token",
+}
+
+scopes = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive",
+]
+
+credentials = Credentials.from_service_account_info(
+    service_account_info,
+    scopes=scopes,
 )
+
+gc = gspread.authorize(credentials)
 
 spreadsheet = gc.open_by_key(
     "1Pb-k_HK6hyeuVwXPXx82zQul-e9SRt-5BRhe39hIaPk"
 )
 
 main_sheet = spreadsheet.sheet1
-
 faq_sheet = spreadsheet.get_worksheet(2)
-
 price_sheet = spreadsheet.get_worksheet(1)
-
 games_sheet = spreadsheet.get_worksheet(3)
 
 

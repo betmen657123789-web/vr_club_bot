@@ -12,12 +12,26 @@ from app.services.schedule_service import (
 from app.telegram.keyboards.main_menu import main_menu
 
 router = Router()
+from datetime import datetime
+
+
+def is_after_working_hours():
+    now = datetime.now()
+    return now.hour >= 21
 
 
 # =========================
 # 📊 TEXT LOGIC
 # =========================
 def get_club_status_text():
+
+    # ⛔ новый приоритетный статус
+    if is_after_working_hours():
+        return (
+            "🌙 На сегодня мы уже завершили работу\n\n"
+            "После 21:00 клуб отдыхает вместе с нами\n"
+            "Ждём вас завтра с новыми играми 🎮💛"
+        )
 
     current_status = check_current_status()
 

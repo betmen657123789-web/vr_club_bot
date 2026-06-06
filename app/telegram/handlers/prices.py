@@ -20,7 +20,7 @@ router = Router()
 # =========================
 # 💰 MAIN MENU
 # =========================
-@router.message(lambda message: message.text == "💰 Цены")
+@router.message(lambda message: message.text == "🎮 Тарифы и услуги")
 async def prices_menu(message: Message):
 
     await send_banner(
@@ -49,7 +49,7 @@ async def ps_card(callback: CallbackQuery):
     games = get_games_by_type("PS")
     coop_games = get_coop_games("PS")
 
-    text = "🎮 PlayStation\n\n💰 Цены\n\n"
+    text = "🎮 PlayStation\n\n🎮 Тарифы и услуги\n\n"
 
     for price in prices:
         text += f"{price['name']} — {price['price']} ₽\n"
@@ -83,7 +83,7 @@ async def vr_card(callback: CallbackQuery):
     games = get_games_by_type("VR")
     coop_games = get_coop_games("VR")
 
-    text = "🥽 VR-шлемы\n\n💰 Цены\n\n"
+    text = "🥽 VR-шлемы\n\n🎮 Тарифы и услуги\n\n"
 
     for price in prices:
         text += f"{price['name']} — {price['price']} ₽\n"
@@ -117,8 +117,15 @@ async def event_card(callback: CallbackQuery):
 
     text = (
         "🎉 Мероприятия\n\n"
-        "🏢 Вместимость зала: до 10 человек\n\n"
-        "🏢 Дополнительный человек + 100 ₽\n\n"
+        "🏢 Вместимость зала:\n"
+        "Оптимально — до 10 человек\n"
+        "Комфортная рассадка:\n"
+        "• 3 дивана (до 3 человек на каждом, комфортная игра — 2 человека)\n"
+        "• 4 VR-шлема (1 игрок = 1 шлем)\n"
+        "Можно разместить больше 10 гостей — в этом случае добавляется доплата за каждого дополнительного человека.\n"
+        
+        "🏢 Дополнительный человек + 650/950/1200₽\n"
+        "От времени аренды\n\n"
         "💰 Стоимость аренды\n\n"
     )
 

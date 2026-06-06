@@ -43,17 +43,18 @@ async def faq_back(callback: CallbackQuery):
 # =========================
 # ❓ FAQ ANSWER
 # =========================
-@router.callback_query(lambda callback: callback.data.startswith("faq_"))
+@router.callback_query(lambda c: c.data.startswith("faq_"))
 async def faq_answer(callback: CallbackQuery):
 
     await callback.answer()
 
-    question = callback.data.replace("faq_", "")
-    answer = get_faq_answer(question)
+    faq_id = int(callback.data.replace("faq_", ""))
+
+    item = get_faq_answer(faq_id)
 
     text = (
-        f"❓ {question}\n\n"
-        f"{answer}"
+        f"❓ {item['question']}\n\n"
+        f"{item['answer']}"
     )
 
     await send_banner(
