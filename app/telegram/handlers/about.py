@@ -12,7 +12,7 @@ from pathlib import Path
 router = Router()
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path(__file__).resolve().parents[2]  # подстрой при необходимости
+BASE_DIR = Path.cwd()
 @router.callback_query(lambda callback: callback.data == "club_photos")
 async def club_photos(callback: CallbackQuery):
     logger.info("Callback: club_photos triggered")
@@ -29,10 +29,17 @@ async def club_photos(callback: CallbackQuery):
 
     ]
 
-    media = [
-        InputMediaPhoto(media=FSInputFile(str(path)))
-        for path in photo_paths
-    ]
+    media = []
+
+    for path in photo_paths:
+        if not path.exists():
+            logger.error("Missing file: %s", path)
+            continue
+
+        media.append(InputMediaPhoto(media=FSInputFile(str(path))))
+    if len(media) < 2:
+        await callback.message.answer("❌ Фото не найдены на сервере")
+        return
 
     logger.info("Sending media group with %s photos", len(media))
 
