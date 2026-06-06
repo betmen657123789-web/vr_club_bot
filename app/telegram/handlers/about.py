@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 
 from aiogram import Router
 from aiogram.types import Message, CallbackQuery, FSInputFile, InputMediaPhoto
@@ -6,27 +7,50 @@ from aiogram.types import Message, CallbackQuery, FSInputFile, InputMediaPhoto
 from app.telegram.keyboards.about_back_keyboard import get_about_back_keyboard
 from app.telegram.keyboards.about_keyboard import get_about_keyboard
 from app.telegram.utils.banner import send_banner
-from pathlib import Path
-
 
 router = Router()
 logger = logging.getLogger(__name__)
 
-BASE_DIR = Path(__file__).resolve().parents[2]
+BASE_DIR = Path.cwd()
+
+# кеш file_id (в памяти)
+PHOTO_CACHE: list[str] = []
+
+
 @router.callback_query(lambda callback: callback.data == "club_photos")
 async def club_photos(callback: CallbackQuery):
     logger.info("Callback: club_photos triggered")
 
     await callback.answer()
 
+    # =========================
+    # 1. КЕШ
+    # =========================
+    if PHOTO_CACHE:
+        media = [
+            InputMediaPhoto(media=file_id)
+            for file_id in PHOTO_CACHE
+        ]
 
+        await callback.message.answer_media_group(media)
+
+        await callback.message.answer(
+            "⬇️ Вернуться в меню клуба:",
+            reply_markup=get_about_back_keyboard()
+        )
+
+        logger.info("Sent photos from cache: %s", len(PHOTO_CACHE))
+        return
+
+    # =========================
+    # 2. С ДИСКА
+    # =========================
     photo_paths = [
-         BASE_DIR / "photos" / "photo_2026-05-31_18-10-52.jpg",
+        BASE_DIR / "photos" / "photo_2026-05-31_18-10-52.jpg",
         BASE_DIR / "photos" / "photo_2026-06-05_22-48-51.jpg",
         BASE_DIR / "photos" / "photo_2026-06-05_22-45-11.jpg",
         BASE_DIR / "photos" / "photo_2026-06-05_22-45-12.jpg",
         BASE_DIR / "photos" / "photo_2026-06-05_22-48-21.jpg",
-
     ]
 
     media = []
@@ -37,20 +61,38 @@ async def club_photos(callback: CallbackQuery):
             continue
 
         media.append(InputMediaPhoto(media=FSInputFile(str(path))))
-    if len(media) < 2:
-        await callback.message.answer("❌ Фото не найдены на сервере")
+
+    if not media:
+        await callback.message.answer("❌ Фото не найдены")
         return
 
-    logger.info("Sending media group with %s photos", len(media))
+    # =========================
+    # 3. ОТПРАВКА
+    # =========================
+    messages = await callback.message.bot.send_media_group(
+        chat_id=callback.message.chat.id,
+        media=media
+    )
 
-    await callback.message.answer_media_group(media)
+    # =========================
+    # 4. КЕШ file_id
+    # =========================
+    for msg in messages:
+        if msg.photo:
+            file_id = msg.photo[-1].file_id
 
+            if file_id not in PHOTO_CACHE:
+                PHOTO_CACHE.append(file_id)
+
+    # =========================
+    # 5. КНОПКА НАЗАД (ВОТ ОНА)
+    # =========================
     await callback.message.answer(
         "⬇️ Вернуться в меню клуба:",
         reply_markup=get_about_back_keyboard()
     )
 
-
+    logger.info("Cache updated: %s items", len(PHOTO_CACHE))
 @router.callback_query(lambda callback: callback.data == "club_map")
 async def club_map(callback: CallbackQuery):
     logger.info("Callback: club_map triggered")
