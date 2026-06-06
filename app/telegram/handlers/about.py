@@ -6,28 +6,31 @@ from aiogram.types import Message, CallbackQuery, FSInputFile, InputMediaPhoto
 from app.telegram.keyboards.about_back_keyboard import get_about_back_keyboard
 from app.telegram.keyboards.about_keyboard import get_about_keyboard
 from app.telegram.utils.banner import send_banner
+from pathlib import Path
 
 
 router = Router()
 logger = logging.getLogger(__name__)
 
-
+BASE_DIR = Path(__file__).resolve().parents[2]  # подстрой при необходимости
 @router.callback_query(lambda callback: callback.data == "club_photos")
 async def club_photos(callback: CallbackQuery):
     logger.info("Callback: club_photos triggered")
 
     await callback.answer()
 
+
     photo_paths = [
-        "photos/photo_2026-05-31_18-10-52.jpg",
-        "photos/photo_2026-06-05_22-48-51.jpg",
-        "photos/photo_2026-06-05_22-45-11.jpg",
-        "photos/photo_2026-06-05_22-45-12.jpg",
-        "photos/photo_2026-06-05_22-48-21.jpg",
+         BASE_DIR / "photos" / "photo_2026-05-31_18-10-52.jpg",
+        BASE_DIR / "photos" / "photo_2026-06-05_22-48-51.jpg",
+        BASE_DIR / "photos" / "photo_2026-06-05_22-45-11.jpg",
+        BASE_DIR / "photos" / "photo_2026-06-05_22-45-12.jpg",
+        BASE_DIR / "photos" / "photo_2026-06-05_22-48-21.jpg",
+
     ]
 
     media = [
-        InputMediaPhoto(media=FSInputFile(path))
+        InputMediaPhoto(media=FSInputFile(str(path)))
         for path in photo_paths
     ]
 
