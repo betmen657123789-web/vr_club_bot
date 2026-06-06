@@ -5,8 +5,16 @@ from aiogram.types import (
 )
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-# BASE_DIR = /app/app
+# banner.py находится в app/telegram/utils/
+# поднимаемся на 3 уровня вверх → /app/app
+BASE_DIR = os.path.dirname(  # app/
+    os.path.dirname(          # app/telegram/
+        os.path.dirname(      # app/telegram/utils/
+            os.path.abspath(__file__)
+        )
+    )
+)
+
 
 async def send_banner(
     message: Message,
