@@ -1,47 +1,44 @@
-from aiogram.types import (
-    InputMediaPhoto,
-    FSInputFile,
-    Message,
-)
-import os
+from pathlib import Path
+from aiogram.types import FSInputFile, InputMediaPhoto
 
-# banner.py находится в app/telegram/utils/
-# поднимаемся на 3 уровня вверх → /app/app
-BASE_DIR = os.path.dirname(  # app/
-    os.path.dirname(          # app/telegram/
-        os.path.dirname(      # app/telegram/utils/
-            os.path.abspath(__file__)
-        )
-    )
-)
+# нормальный путь от файла utils/banner.py
+BASE_DIR = Path(__file__).resolve().parents[2]
+PHOTO_DIR = BASE_DIR / "photos"
+DEFAULT_BANNER = PHOTO_DIR / "banner.png"
 
 
-async def send_banner(
-    message: Message,
-    text: str,
-    keyboard=None,
-    photo_path: str = None
-):
+async def send_banner(message, text, keyboard=None, photo_path=None):
+    # fallback путь
     if photo_path is None:
-        photo_path = os.path.join(BASE_DIR, "photos", "banner.png")
+        photo_path = DEFAULT_BANNER
 
-    photo = FSInputFile(photo_path)
+    photo_path = Path(photo_path)
+
+    # защита от отсутствующего файла
+    if not photo_path.exists():
+        photo_path = DEFAULT_BANNER
+
+    photo = FSInputFile(str(photo_path))
+
     media = InputMediaPhoto(
         media=photo,
         caption=text
     )
 
-    # если сообщение уже с фото → редактируем
     try:
+        # пробуем обновить текущее фото-сообщение
         await message.edit_media(
             media=media,
             reply_markup=keyboard
         )
+        return
 
-    # если нельзя редактировать (например старое текстовое)
     except Exception:
-        await message.answer_photo(
-            photo=photo,
-            caption=text,
-            reply_markup=keyboard
-        )
+        pass
+
+    # fallback (если сообщение не редактируется)
+    await message.answer_photo(
+        photo=photo,
+        caption=text,
+        reply_markup=keyboard
+    )

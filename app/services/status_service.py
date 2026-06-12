@@ -18,6 +18,8 @@ from datetime import datetime
 
 def is_after_working_hours():
     return now().hour >= 21
+def is_to_working_hours():
+    return now().hour <= 12
 
 
 # =========================
@@ -32,6 +34,15 @@ def get_club_status_text():
             "После 21:00 клуб отдыхает вместе с нами\n"
             "Ждём вас завтра с новыми играми 🎮💛"
         )
+
+        # ⛔ новый приоритетный статус
+    if is_to_working_hours():
+        return (
+            "🌙 Мы ещё отдыхаем и набираемся сил\n\n"
+             "Откроемся сегодня в 12:00. А пока — мы спим 😴\n"
+            "Ждём вас днём с новыми играми 🎮💛"
+        )
+
 
     current_status = check_current_status()
 
