@@ -43,6 +43,7 @@ async def faq_back(callback: CallbackQuery):
 # =========================
 # ❓ FAQ ANSWER
 # =========================
+
 @router.callback_query(lambda c: c.data.startswith("faq_"))
 async def faq_answer(callback: CallbackQuery):
 
